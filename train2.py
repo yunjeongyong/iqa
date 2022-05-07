@@ -24,13 +24,34 @@ if __name__ == '__main__':
     transforms_test = transforms.Compose([transforms.Resize((128, 128)),
                                           transforms.ToTensor()])
 
-    train_dataset = Kadid10kDataset(transforms=transforms_train, is_train=True, return_type='dist')
+    kadid_dataset = Kadid10kDataset(transforms=transforms_train)
+    X = kadid_dataset.dist
+    y = kadid_dataset.dmos
+
+    # X = torch.FloatTensor(image)
+    # y = torch.FloatTensor(dmos)
+    x_train, x_test, y_train, y_test = train_test_split(
+        X, y, test_size=0.2, random_state=2, shuffle=True
+    )
+
+    x_train = [t.numpy() for t in x_train]
+    x_train = torch.FloatTensor(x_train)
+    y_train = torch.FloatTensor(y_train)
+    y_train = torch.unsqueeze(y_train, 1)
+
+    train_dataset = TensorDataset(x_train, y_train)
     train_loader = DataLoader(train_dataset, batch_size=4, shuffle=True)
 
-    test_dataset = Kadid10kDataset(transforms=transforms_test, is_train=False, return_type='dist')
+    x_test = [t.numpy() for t in x_test]
+    x_test = torch.FloatTensor(x_test)
+    y_test = torch.FloatTensor(y_test)
+    y_test = torch.unsqueeze(y_test, 1)
+
+    test_dataset = TensorDataset(x_test, y_test)
     test_loader = DataLoader(test_dataset, batch_size=1, shuffle=True)
 
     device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
+
 
     custom_model = ShuffleNetV2().to(device)
 
@@ -40,7 +61,7 @@ if __name__ == '__main__':
     optimizer = torch.optim.Adam(custom_model.parameters(), lr=hyper_param_learning_rate)
     custom_model.train()
     for e in range(hyper_param_epoch):
-        for i_batch, (_, x_train, y_train, _) in enumerate(train_loader):
+        for i_batch, item in enumerate(train_loader):
             # print(item['label'])
             # images = item['image'].to(device)
             # print(images)
@@ -50,7 +71,7 @@ if __name__ == '__main__':
             # labels = torch.LongTensor(labels)
             # print(labels)
 
-            # x_train, y_train = item
+            x_train, y_train = item
             # print(torch.Size(y_train))
             # print(y_train)
 
