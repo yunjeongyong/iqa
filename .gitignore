@@ -1,0 +1,11 @@
+__pycache__/
+.DS_Store
+yunjeong/
+weights/
+.idea/
+
+# datasets
+livedataset/
+tid2013/
+kadid10k/
+kadid10k.zip
