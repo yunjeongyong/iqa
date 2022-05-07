@@ -39,35 +39,31 @@ class Kadid10kDataset(Dataset):
             next(reader)
             rows = [row for row in reader]
             idx = 0
-            self.total = 100
+            self.total = 50
             # self.total = len(rows)
             for dist, ref, dmos, _ in tqdm(rows, total=self.total):
                 dist_img = Image.open(folder + dist)
                 dist_img = dist_img.convert("RGB")
-                # dist_img = np.array(dist_img)
 
                 ref_img = Image.open(ref_folder + ref)
                 ref_img = ref_img.convert("RGB")
-                # ref_img = np.array(ref_img)
 
                 if self.transforms is not None:
                     dist_img = self.transforms(dist_img)
                     ref_img = self.transforms(ref_img)
 
                 self.X.append((dist_img, ref_img))
-
-                # self.dist.append(dist_img)
-                # self.ref.append(ref_img)
+                self.ref.append(ref_img)
+                self.dist.append(dist_img)
                 self.dmos.append(float(dmos))
+
                 if idx == self.total:
                     break
                 else:
                     idx += 1
+            self.normalize()
 
-            self.X = torch.FloatTensor(self.X)
-            self.dmos = torch.FloatTensor(self.dmos)
-
-            x_train, x_test, y_train, y_test = self.train_test_split(self.X, self.dmos, 0.2, 2, False)
+            x_train, x_test, y_train, y_test = self.train_test_split(self.X, self.dmos, 0.2, 2, True)
             if self.is_train:
                 self.X = x_train
                 self.dmos = y_train
@@ -75,16 +71,19 @@ class Kadid10kDataset(Dataset):
                 self.X = x_test
                 self.dmos = y_test
 
-            for dist_img, ref_img in self.X:
-                self.dist.append(dist_img)
-                self.ref.append(ref_img)
+            self.ref = [t.numpy() for t in self.ref]
+            self.dist = [t.numpy() for t in self.dist]
+            self.ref = torch.FloatTensor(self.ref)
+            self.dist = torch.FloatTensor(self.dist)
+            self.dmos = torch.FloatTensor(self.dmos)
+            self.dmos = torch.unsqueeze(self.dmos, 1)
 
+            # if self.return_type == 'all':
+            #     self.X = [(dist, ref) for dist, ref in zip(self.dist, self.ref)]
             if self.return_type == 'dist':
-                self.X = [dist for dist, _ in self.X]
+                self.X = self.dist
             elif self.return_type == 'ref':
-                self.X = [ref for _, ref in self.X]
-
-            self.normalize()
+                self.X = self.ref
 
     def train_test_split(self, X, y, test_size, random_state, shuffle):
         x_train, x_test, y_train, y_test = train_test_split(
@@ -101,5 +100,5 @@ class Kadid10kDataset(Dataset):
         return self.ref[item], self.dist[item], self.dmos[item], self.dmos_norm[item]
 
     def __len__(self):
-        return self.total
+        return len(self.dmos)
 

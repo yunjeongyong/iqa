@@ -24,8 +24,8 @@ class TidDataset(Dataset):
             next(reader)
             rows = [row for row in reader]
             idx = 0
-            # self.total = 10
-            self.total = len(rows)
+            self.total = 10
+            # self.total = len(rows)
             for dist, _, ref, dmos in tqdm(rows, total=self.total):
                 dist_img = Image.open(folder + dist)
                 dist_img = dist_img.convert("RGB")
