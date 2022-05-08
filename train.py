@@ -24,10 +24,16 @@ if __name__ == '__main__':
     transforms_test = transforms.Compose([transforms.Resize((128, 128)),
                                           transforms.ToTensor()])
 
-    train_dataset = Kadid10kDataset(transforms=transforms_train, is_train=True, return_type='dist')
-    train_loader = DataLoader(train_dataset, batch_size=4, shuffle=True)
+    dataset = Kadid10kDataset(transforms=transforms_train, is_train=True, return_type='dist')
 
-    test_dataset = Kadid10kDataset(transforms=transforms_test, is_train=False, return_type='dist')
+    train_dataset = TensorDataset(dataset.x_train, dataset.y_train)
+    train_loader = DataLoader(train_dataset, batch_size=4, shuffle=True)
+    # print(dataset.x_train)
+
+    # train_dataset == (x_train, y_train)
+    # train_dataset == ((dist, ref), y_train)
+
+    test_dataset = TensorDataset(dataset.x_test, dataset.y_test)
     test_loader = DataLoader(test_dataset, batch_size=1, shuffle=True)
 
     device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
@@ -40,7 +46,9 @@ if __name__ == '__main__':
     optimizer = torch.optim.Adam(custom_model.parameters(), lr=hyper_param_learning_rate)
     custom_model.train()
     for e in range(hyper_param_epoch):
-        for i_batch, (_, x_train, y_train, _) in enumerate(train_loader):
+        # all이면 ((dist, ref), dmos)
+        # ref면 (ref, dmos)
+        for i_batch, (dist, dmos) in enumerate(train_loader):
             # print(item['label'])
             # images = item['image'].to(device)
             # print(images)
@@ -55,10 +63,10 @@ if __name__ == '__main__':
             # print(y_train)
 
             # Forward pass
-            prediction = custom_model(x_train)
+            prediction = custom_model(dist)
             # print(images)
             # print(labels)
-            loss = F.mse_loss(prediction, y_train)
+            loss = F.mse_loss(prediction, dmos)
 
             # Backward and optimize
             optimizer.zero_grad()
