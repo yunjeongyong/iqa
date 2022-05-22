@@ -24,17 +24,18 @@ if __name__ == '__main__':
     transforms_test = transforms.Compose([transforms.Resize((128, 128)),
                                           transforms.ToTensor()])
 
-    dataset = Kadid10kDataset(transforms=transforms_train, is_train=True, return_type='dist')
 
-    train_dataset = TensorDataset(dataset.x_train, dataset.y_train)
-    train_loader = DataLoader(train_dataset, batch_size=4, shuffle=True)
+    trainset = Kadid10kDataset(transforms=transforms_train, is_train=True, return_type='dist')
+    testset = Kadid10kDataset(transforms=transforms_test, is_train=False, return_type='dist')
+
+
+    train_loader = DataLoader(trainset, batch_size=4, shuffle=True)
     # print(dataset.x_train)
 
     # train_dataset == (x_train, y_train)
     # train_dataset == ((dist, ref), y_train)
 
-    test_dataset = TensorDataset(dataset.x_test, dataset.y_test)
-    test_loader = DataLoader(test_dataset, batch_size=1, shuffle=True)
+    test_loader = DataLoader(testset, batch_size=1, shuffle=True)
 
     device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 
