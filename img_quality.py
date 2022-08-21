@@ -83,7 +83,7 @@ def srcc(imageA, imageB):
 def minmax_normalize(x, min, max):
     return (x - min) / (max - min)
 
-def pearsonr():
+def spearman():
     csv_path = './kadid10k/dmos.csv'
     folder = './normalized2.csv'
     with open(csv_path, 'r',  newline='') as f:
@@ -131,4 +131,4 @@ def pearsonr():
 #           [9, 10, 11, 12]]
 
 if __name__ == '__main__':
-    pearsonr()
+    spearman()

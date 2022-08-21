@@ -141,7 +141,7 @@ if __name__ == '__main__':
     # ms_ssim_array = normalized(ms_ssim_array)
 
     # # 계산된 normalize로 csv 생성
-    with open('./normalized2.csv', 'w+') as f:
+    with open('./normalized3.csv', 'w+') as f:
         f.write('psnr,ssim,dist,vsi,nlpd,%s\n' % ','.join(iqas_names))
         # for psnr, ssim, dist, cw_ssim, mad, ms_ssim in zip(psnr_array, ssim_array, dist_array, cw_ssim_array, mad_array, ms_ssim_array):
         #     iqa_values = [psnr, ssim, dist, cw_ssim, mad, ms_ssim]

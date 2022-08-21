@@ -2,3 +2,4 @@ kadid10k/
 .DS_Store
 .idea/
 __pycache__/
+weights/
